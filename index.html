@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>لعبة العيد البسيطة</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    background-color: white;
+    color: #333;
+  }
+
+  h1 {
+    font-size: 3em;
+    margin-top: 30px;
+    color: #000;
+  }
+
+  h2 {
+    font-size: 2em;
+    margin-top: 20px;
+  }
+
+  button {
+    padding: 15px 35px;
+    font-size: 20px;
+    margin: 12px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    background: linear-gradient(145deg, #00BFFF, #1E90FF);
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+  }
+
+  button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }
+
+  #game, #numberScreen, #challengeScreen { display: none; margin-top: 30px; }
+
+  .number-btn {
+    width: 80px;
+    height: 80px;
+    font-size: 24px;
+    margin: 10px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, #00BFFF, #1E90FF);
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .number-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    background: linear-gradient(145deg, #1E90FF, #00BFFF);
+  }
+
+  .container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🎉 لعبة العيد 🎉</h1>
+  <div id="startScreen">
+    <button onclick="startGame()">ابدأ</button>
+  </div>
+
+  <div id="game">
+    <h2>اختاري نوع اللعبة</h2>
+    <button onclick="showNumbers('fastest')">أسرع وحدة</button>
+    <button onclick="showNumbers('challenges')">تحديات</button>
+  </div>
+
+  <div id="numberScreen">
+    <h2>اختاري رقم التحدي</h2>
+    <div id="numbers" style="display:flex;flex-wrap:wrap;justify-content:center;"></div>
+    <button onclick="goBack()">رجوع</button>
+  </div>
+
+  <div id="challengeScreen">
+    <h2>التحدي:</h2>
+    <p id="challengeText" style="font-size:1.8em;"></p>
+    <button onclick="showNumbers(currentType)">التالي</button>
+  </div>
+</div>
+
+<script>
+const fastestChallenges = [
+  "أسرع وحدة تجيب بنت لابسة أسود كامل",
+  "أسرع وحدة تجيب بنت صابغة شعرها",
+  "أسرع وحدة تجيب قلم أزرق",
+  "أسرع وحدة تجيب دفتر",
+  "أسرع وحدة تجيب شنطة سوداء",
+  "أسرع وحدة تجيب كتاب",
+  "أسرع وحدة تجيب جوال أبلة",
+  "أسرع وحدة تجيب بنت لابسة عدسات",
+  "أسرع وحدة تجيب عصير أو ماء",
+  "أسرع وحدة تجيب شيء صغير",
+  "أسرع وحدة تجيب قلم أحمر",
+  "أسرع وحدة تجيب قلم رصاص",
+  "أسرع وحدة تجيب دفتر ملاحظات",
+  "أسرع وحدة تجيب أي شيء لونه أزرق",
+  "أسرع وحدة تجيب أي شيء أحمر",
+  "أسرع وحدة تجيب أكل",
+  "أسرع وحدة تجيب شيء أصفر من الفصل",
+  "أسرع وحدة تجيب شيء مضحك",
+  "أسرع وحدة تجيب كيس صغير",
+  "أسرع وحدة تجيب أي شيء لامع حولها"
+];
+
+const challengeChallenges = [
+  "اجمعي 6 أشياء عشوائية حولك بسرعة",
+  "قولي 3 أشياء حولك بحرف (ش)",
+  "جيبي صحبتك، سوي مشهد مصري معها",
+  "قولي سالفة بالعراقي",
+  "أنتِ كويتية وصاحبتك إندونيسية، سولفوا لنا مع بعض",
+  "قلدي مشهور والي معك يحاولون يعرفون مين",
+  " اقعدي مكانك 🐓",
+  "قلدي هندي يبكي",
+  "كملي اللعبة معنا بعبايتك",
+  "الفّي بيتين شعر يضحك",
+  "حكينا عن الأوتفت 😼",
+  "غني لنا باحساس ومشاعر",
+  "تقمصي شخصية أم صامل",
+  "قولي 5 مرات: شمس تمشي وشمس مشمشه",
+  "غني راب حسب إحساسك الحين",
+  "قولي 4 مرات: لحم الحمام حلال ولحم الحمار حرام",
+  "عدي إلى 20 بدون تتنفسي",
+  "لفي حول نفسك 10 مرات",
+  "ضحكي الي جنبك",
+  "ناظري بعيون الي قدامك بدون يضحك"
+];
+
+let currentType = '';
+
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+}
+
+function showNumbers(type) {
+  currentType = type;
+  document.getElementById('game').style.display = 'none';
+  document.getElementById('challengeScreen').style.display = 'none';
+  document.getElementById('numberScreen').style.display = 'block';
+  
+  const numbersDiv = document.getElementById('numbers');
+  numbersDiv.innerHTML = '';
+  for(let i=1; i<=20; i++){
+    const btn = document.createElement('button');
+    btn.innerText = i;
+    btn.className = 'number-btn';
+    btn.onclick = () => showChallenge(i-1);
+    numbersDiv.appendChild(btn);
+  }
+}
+
+function showChallenge(index){
+  document.getElementById('numberScreen').style.display = 'none';
+  document.getElementById('challengeScreen').style.display = 'block';
+  const challengeArray = currentType === 'fastest' ? fastestChallenges : challengeChallenges;
+  document.getElementById('challengeText').innerText = challengeArray[index];
+}
+
+function goBack(){
+  document.getElementById('numberScreen').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
